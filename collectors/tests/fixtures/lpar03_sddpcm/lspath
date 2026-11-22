@@ -1,0 +1,9 @@
+hdisk0:vscsi0:810000000000:Available:Enabled
+hdisk1:fscsi0:500507680140bb01,1000000000000:Available:Enabled
+hdisk1:fscsi0:500507680140bb02,1000000000000:Available:Enabled
+hdisk1:fscsi1:500507680140bb03,1000000000000:Available:Failed
+hdisk1:fscsi1:500507680140bb04,1000000000000:Available:Enabled
+hdisk2:fscsi0:500507680140bb01,2000000000000:Available:Enabled
+hdisk2:fscsi0:500507680140bb02,2000000000000:Available:Enabled
+hdisk2:fscsi1:500507680140bb03,2000000000000:Available:Enabled
+hdisk2:fscsi1:500507680140bb04,2000000000000:Available:Enabled

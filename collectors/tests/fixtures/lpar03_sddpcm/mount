@@ -1,0 +1,3 @@
+  node       mounted        mounted over    vfs       date        options
+-------- ---------------  ---------------  ------ ------------ ---------------
+         /dev/hd4         /                jfs2   Nov 01 10:00 rw,log=/dev/hd8

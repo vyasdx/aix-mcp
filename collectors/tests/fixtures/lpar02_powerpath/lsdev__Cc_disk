@@ -1,0 +1,4 @@
+hdisk0:Available:U9105.42A.SYN0001-V2-C2-T1-L8100000000000000:Virtual SCSI Disk Drive
+hdisk1:Available:01-00-01:EMC Symmetrix FCP Raid1
+hdisk2:Available:02-00-01:EMC Symmetrix FCP Raid1
+hdiskpower0:Available:01-00-01:PowerPath Device

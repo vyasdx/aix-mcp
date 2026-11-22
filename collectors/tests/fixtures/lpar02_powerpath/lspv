@@ -1,0 +1,4 @@
+hdisk0          00bb000000000001                    rootvg          active
+hdisk1          none                                None
+hdisk2          none                                None
+hdiskpower0     00bb000000000002                    datavg          active

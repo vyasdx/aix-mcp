@@ -1,0 +1,25 @@
+H|collector|aix_storage_paths.ksh
+H|version|0.1
+H|host|vios-01
+H|role|VIOS
+H|collected_at|20261120T101600Z
+H|oslevel|7300-03-00-0000
+H|lpar|1 vios-01
+H|model_serial|IBM,9105-42A IBM,02SYN0001
+H|options|timeout=10 budget=120 quick=0
+F|/|2048|1600|22|local
+D|hdisk0|Available|U78D3.ND1.SYN0001-P1-C49-T1-L1-L0|rootvg|00aa000000000001|285696|-|-|-|-|-|0|0|0|0|-|non-MPIO|SAS Disk Drive
+H|multipath|none detected
+A|fcs0|Available|U78D3.ND1.SYN0001-P1-C2-T1|fc|10000090FB000001|fscsi0|fast_fail|yes|PCIe3 4-Port 32Gb FC Adapter
+A|fcs1|Available|U78D3.ND1.SYN0001-P1-C2-T2|fc|10000090FB000002|fscsi1|fast_fail|yes|PCIe3 4-Port 32Gb FC Adapter
+A|vfchost0|Available|U9105.42A.SYN0001-V1-C30|vfchost (VIOS NPIV server)|-|-|-|-|Virtual FC Server Adapter
+A|vfchost2|Available|U9105.42A.SYN0001-V1-C32|vfchost (VIOS NPIV server)|-|-|-|-|Virtual FC Server Adapter
+H|ioslevel|4.1.0.10
+N|vfchost0|U9105.42A.SYN0001-V1-C30|5|host-01|AIX|LOGGED_IN|fcs0|U78D3.ND1.SYN0001-P1-C2-T1|1|a<LOGGED_IN,STRIP_MERGE>|fcs0|U9105.42A.SYN0001-V5-C10
+N|vfchost2|U9105.42A.SYN0001-V1-C32|7|host-07|AIX|NOT_LOGGED_IN|fcs1|U78D3.ND1.SYN0001-P1-C2-T2|0|4<NOT_MAPPED,NOT_CONNECTED>|-|-
+Q|fcs0|U78D3.ND1.SYN0001-P1-C2-T1|1|64|62|2048|2032
+Q|fcs1|U78D3.ND1.SYN0001-P1-C2-T2|0|64|64|2048|2048
+O|vios|vfchost not logged in: vfchost2 client 7 (host-07) status NOT_LOGGED_IN
+O|vios|FC port without NPIV fabric support: fcs1 fabric=0
+H|elapsed_s|3.1
+H|checks|total=18 ok=18 missing=0 na=1

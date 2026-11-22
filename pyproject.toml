@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aix-mcp"
+dynamic = ["version"]
+description = "Read-only MCP server for the AIX guest OS: storage, multipath and VIOS evidence for AI assistants. Not affiliated with IBM."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.10"
+authors = [{ name = "The aix-mcp authors" }]
+keywords = ["aix", "mcp", "model-context-protocol", "power", "vios", "multipath", "sre"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: System Administrators",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: System :: Systems Administration",
+]
+dependencies = ["mcp>=1.10,<2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "anyio>=4"]
+
+[project.scripts]
+aix-mcp = "aix_mcp.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/vyasdx/aix-mcp"
+Issues = "https://github.com/vyasdx/aix-mcp/issues"
+
+[tool.hatch.version]
+path = "src/aix_mcp/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aix_mcp"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "collectors", "tests", "docs", "README.md", "LICENSE", "NOTICE", "SECURITY.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,3 @@
+ Subsystem         Group            PID          Status
+ nfsd             nfs              1234         active
+ rpc.mountd       nfs              1235         active

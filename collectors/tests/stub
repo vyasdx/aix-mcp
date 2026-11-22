@@ -1,0 +1,20 @@
+#!/usr/bin/ksh93
+# Fixture stub for aix_storage_paths.ksh tests. Called through a link named after the
+# AIX command. Answers from $AIXMCP_FIXTURE/<key>, where key = command and arguments joined
+# with '_' and every non-alphanumeric character turned into '_'. The longest matching
+# argument prefix wins. <key>.sleep holds seconds to sleep first (simulates a hang).
+cmd=${0##*/}
+set -A args -- "$@"
+n=${#args[@]}
+while (( n >= 0 )); do
+    key=$cmd; i=0
+    while (( i < n )); do key="${key}_${args[i]}"; (( i += 1 )); done
+    key=${key//[^A-Za-z0-9]/_}
+    if [[ -f $AIXMCP_FIXTURE/$key ]]; then
+        [[ -f $AIXMCP_FIXTURE/$key.sleep ]] && sleep $(< $AIXMCP_FIXTURE/$key.sleep)
+        cat "$AIXMCP_FIXTURE/$key"; exit 0
+    fi
+    (( n -= 1 ))
+done
+print -u2 "stub: no fixture for $cmd $*"
+exit 1

@@ -1,0 +1,2 @@
+Filesystem    1024-blocks      Free %Used    Iused %Iused Mounted on
+/dev/gpfs1  1048576000 524288000   50%   100000     1% /gpfs1

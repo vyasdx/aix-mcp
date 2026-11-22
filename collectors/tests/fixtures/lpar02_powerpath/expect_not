@@ -1,0 +1,4 @@
+^C|df_local|.*/home/shared
+^C|df_local|.*/mnt/cifs
+^C|df_local|.*/net
+^C|df_local|.*/gpfs1

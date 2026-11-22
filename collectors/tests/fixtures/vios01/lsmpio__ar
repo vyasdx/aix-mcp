@@ -1,0 +1,13 @@
+Adapter Driver: fscsi0 -> AIX PCM
+    Adapter WWPN:  10000090fa000001
+    Link State:    Up
+                          Paths      Paths      Paths      Paths
+    Remote Ports        Enabled   Disabled     Failed    Missing         ID
+    500507680130aa01          2          0          0          0    0x010100
+
+Adapter Driver: fscsi1 -> AIX PCM
+    Adapter WWPN:  10000090fa000002
+    Link State:    Down
+                          Paths      Paths      Paths      Paths
+    Remote Ports        Enabled   Disabled     Failed    Missing         ID
+    500507680130aa02          0          0          1          0    0x020100

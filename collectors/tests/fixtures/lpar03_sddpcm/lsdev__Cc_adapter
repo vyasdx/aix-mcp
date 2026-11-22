@@ -1,0 +1,3 @@
+fcs0:Available:01-00:8Gb PCI Express Dual Port FC Adapter (df1000f114108a03)
+fcs1:Available:01-01:8Gb PCI Express Dual Port FC Adapter (df1000f114108a03)
+vscsi0:Available::Virtual SCSI Client Adapter

@@ -1,0 +1,18 @@
+# PowerPath detection, remote mounts never read, NFS exports, cluster FS watchdog
+multipath: AIX-PCM PowerPath
+^M|/home/shared|/export/home|nfs3|remote|nas-01|not read
+^M|/mnt/cifs|/share|cifs|remote|fs-01|not read
+^M|/net|/etc/auto_master|autofs|remote|
+^M|/gpfs1|/dev/gpfs1|mmfs|cluster|
+^F|/data|102400|51200|50|local
+^C|df_cluster_1|MISSING|
+3 remote client mount(s) listed
+^X|/data/exp1|/data|local|capacity of /data only; contents not read|-rw,access=host-05
+^X|/home/shared/sub|/home/shared|remote|not read (remote)|-ro
+NFS server: yes, exports 2
+^C|powermt|OK|
+^C|powermt_paths|OK|
+^D|hdiskpower0|.*|datavg|.*|PowerPath pseudo|
+^D|hdisk1|.*|PowerPath member/non-MPIO|
+^D|hdisk0|.*|PCM/friend/vscsi|fail_over|.*|2|2|0|0|-|AIX PCM|
+PowerPath reports 1 dead/failed/offline path

@@ -1,0 +1,5 @@
+name     path_id  status   path_status  parent  connection
+
+hdisk1   0        Enabled  Sel,Opt      fscsi0  500507680130aa01,1000000000000
+hdisk1   1        Failed   Non          fscsi1  500507680130aa02,1000000000000
+hdisk2   0        Enabled  Sel,Opt      fscsi0  500507680130aa01,2000000000000

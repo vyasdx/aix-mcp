@@ -1,0 +1,5 @@
+PCM PCM/friend/fcpother
+algorithm shortest_queue
+hcheck_interval 60
+queue_depth 32
+reserve_policy no_reserve

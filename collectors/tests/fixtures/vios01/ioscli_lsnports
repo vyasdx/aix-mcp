@@ -1,0 +1,3 @@
+name             physloc                        fabric tports aports swwpns  awwpns
+fcs0             U78D3.ND1.SYN0001-P1-C2-T1          1     64     62   2048    2044
+fcs1             U78D3.ND1.SYN0001-P1-C2-T2          0     64     64   2048    2048

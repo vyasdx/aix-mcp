@@ -1,0 +1,22 @@
+# VIOS role, NPIV/vSCSI/SEA mapping, watchdog on a hanging fcstat
+role VIOS
+^H|ioslevel|4.1.0.10
+^N|vfchost0|U9105.42A.SYN0001-V1-C30|3|host-03|AIX|LOGGED_IN|fcs0|
+^N|vfchost2|.*|NOT_LOGGED_IN|fcs1|
+vfchost not logged in: vfchost2
+^V|vhost0|U9105.42A.SYN0001-V1-C20|0x00000003|vtscsi0|Available|0x8100000000000000|hdisk1|
+^V|vhost0|.*|vtopt0|.*aix73.iso
+^V|vhost1|U9105.42A.SYN0001-V1-C21|0x00000004|-|
+^Q|fcs1|U78D3.ND1.SYN0001-P1-C2-T2|0|
+FC port without NPIV fabric support: fcs1
+NPIV: 3 vfchost  vSCSI: 2 vhost, 2 VTD  NPIV ports: 2
+^C|fcstat_fcs1|MISSING|
+^C|fcstat_fcs0|OK|
+hdisk1: 1 failed and 0 other
+hdisk2: only one path
+hdisk2: hcheck_interval=0
+fscsi1: fc_err_recov=delayed_fail
+fscsi1: dyntrk=no
+^T|fscsi1|10000090fa000002|Down|500507680130aa02|0|0|1|0|0x020100
+^A|fcs0|Available|.*|fc|10000090FA000001|fscsi0|fast_fail|yes|
+^D|hdisk0|Available|.*|rootvg|00aa000000000001|285696|-|.*|non-MPIO|

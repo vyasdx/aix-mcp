@@ -1,0 +1,5 @@
+PCM PCM/friend/fcpother
+algorithm fail_over
+hcheck_interval 0
+queue_depth 32
+reserve_policy single_path

@@ -1,0 +1,9 @@
+ent0:Available:U78D3.ND1.SYN0001-P1-C4-T1:PCIe3 4-Port 10GbE SR Adapter
+ent3:Available::Shared Ethernet Adapter
+fcs0:Available:U78D3.ND1.SYN0001-P1-C2-T1:PCIe3 2-Port 32Gb FC Adapter (df1000e31410f103)
+fcs1:Available:U78D3.ND1.SYN0001-P1-C2-T2:PCIe3 2-Port 32Gb FC Adapter (df1000e31410f103)
+vfchost0:Available:U9105.42A.SYN0001-V1-C30:Virtual FC Server Adapter
+vfchost1:Available:U9105.42A.SYN0001-V1-C31:Virtual FC Server Adapter
+vfchost2:Available:U9105.42A.SYN0001-V1-C32:Virtual FC Server Adapter
+vhost0:Available:U9105.42A.SYN0001-V1-C20:Virtual SCSI Server Adapter
+vhost1:Available:U9105.42A.SYN0001-V1-C21:Virtual SCSI Server Adapter

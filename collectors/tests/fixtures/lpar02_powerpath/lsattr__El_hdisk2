@@ -1,0 +1,2 @@
+queue_depth 32
+reserve_lock no

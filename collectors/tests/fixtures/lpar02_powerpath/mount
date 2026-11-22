@@ -1,0 +1,10 @@
+  node       mounted        mounted over    vfs       date        options
+-------- ---------------  ---------------  ------ ------------ ---------------
+         /dev/hd4         /                jfs2   Nov 01 10:00 rw,log=/dev/hd8
+         /dev/hd2         /usr             jfs2   Nov 01 10:00 rw,log=/dev/hd8
+         /dev/datalv      /data            jfs2   Nov 01 10:00 rw,log=INLINE
+         /dev/gpfs1       /gpfs1           mmfs   Nov 01 10:01 rw,mtime,atime,dev=gpfs1
+         /etc/auto_master /net             autofs Nov 01 10:01 ignore
+         /proc            /proc            procfs Nov 01 10:00 rw
+nas-01   /export/home     /home/shared     nfs3   Nov 01 10:02 rw,hard,intr
+fs-01    /share           /mnt/cifs        cifs   Nov 01 10:02 rw

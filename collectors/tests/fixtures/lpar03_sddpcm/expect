@@ -1,0 +1,12 @@
+# SDDPCM detection, failed path, concurrent VG reserve, hcheck 0, path counts
+multipath: AIX-PCM SDDPCM
+IBM has withdrawn SDDPCM support
+^D|hdisk1|.*|appvg|.*|PCM/friend/sddpcm|load_balance|no_reserve|20|60|4|3|1|0|-|SDDPCM|
+^D|hdisk2|.*|sharedvg(concurrent)|
+hdisk1: 1 failed and 0 other non-enabled path(s) of 4
+hdisk2: concurrent VG member with reserve_policy=single_path
+^C|pcmpath_dev|OK|
+^C|pcmpath_ad|OK|
+^C|exportfs|NA|
+^C|vios|NA|
+SDDPCM reports 1 dead/failed/offline path

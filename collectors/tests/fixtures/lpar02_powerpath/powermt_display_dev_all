@@ -1,0 +1,10 @@
+Pseudo name=hdiskpower0
+Symmetrix ID=000000000001
+Logical device ID=00AA
+state=alive; policy=SymmOpt; queued-IOs=0
+==============================================================================
+--------------- Host ---------------   - Stor -   -- I/O Path --  -- Stats ---
+###  HW Path               I/O Paths    Interf.   Mode    State   Q-IOs Errors
+==============================================================================
+   0 fscsi0                   hdisk1    FA  1d:00 active  alive       0      0
+   1 fscsi1                   hdisk2    FA 16d:00 active  dead        0      3

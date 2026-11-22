@@ -1,0 +1,5 @@
+ent0:Available::Virtual I/O Ethernet Adapter (l-lan)
+fcs0:Available:01-00:PCIe3 2-Port 16Gb FC Adapter (df1000e21410f103)
+fcs1:Available:02-00:PCIe3 2-Port 16Gb FC Adapter (df1000e21410f103)
+vscsi0:Available::Virtual SCSI Client Adapter
+vscsi1:Available::Virtual SCSI Client Adapter

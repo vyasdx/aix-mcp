@@ -1,0 +1,64 @@
+C|oslevel|OK|0.041|0|-|oslevel -s
+C|uname|OK|0.012|0|-|uname -L
+C|sys0|OK|0.030|0|-|lsattr -El sys0 -a modelname -a systemid -F value
+H|collector|aix_storage_paths.ksh
+H|version|0.1
+H|host|host-01
+H|role|LPAR
+H|collected_at|20261120T101500Z
+H|oslevel|7300-04-01-2546
+H|lpar|5 host-01
+H|model_serial|IBM,9105-42A IBM,02SYN0001
+H|options|timeout=10 budget=120 quick=0
+C|mount|OK|0.020|0|-|mount
+M|/|/dev/hd4|jfs2|local|-|capacity
+M|/usr|/dev/hd2|jfs2|local|-|capacity
+M|/data01|/dev/fslv00|jfs2|local|-|capacity
+M|/proc|/proc|procfs|pseudo|-|not read
+M|/mnt/share|/export/share|nfs3|remote|nfs-01|not read (client mount; data belongs to the server)
+C|df_local|OK|0.051|0|-|df -k / /usr /data01
+F|/|2048|1320|36|local
+F|/usr|6144|1210|81|local
+F|/data01|102400|3072|97|local
+C|nfs_subsys|OK|0.040|0|-|lssrc -g nfs
+C|exportfs|NA|0|-|no /etc/exports or /etc/xtab|-
+H|nfs_server|no exports=0
+C|disks|OK|0.090|0|-|lsdev -Cc disk -F name:status:location:description
+C|lspv|OK|0.060|0|-|lspv
+C|lspath|OK|0.070|0|-|lspath -F name:parent:connection:path_status:status
+C|lsmpio|OK|0.080|0|-|lsmpio
+C|lsmpio_ar|OK|0.090|0|-|lsmpio -ar
+C|mdd|OK|0.050|0|-|manage_disk_drivers -l
+C|disk_attrs|OK|0.400|0|-|dattr
+C|size_hdisk0|OK|0.020|0|-|bootinfo -s hdisk0
+C|size_hdisk1|OK|0.020|0|-|bootinfo -s hdisk1
+C|size_hdisk2|MISSING|3.004|-|no answer in 3s (slow, hung or stale); abandoned, check by hand|bootinfo -s hdisk2
+C|thirdparty_mp|NA|0|-|no PowerPath, SDDPCM, HDLM or DMP commands found|-
+P|hdisk0|fscsi0|500507680130aa01,0|Available|Enabled
+P|hdisk0|fscsi1|500507680130aa02,0|Available|Enabled
+P|hdisk1|fscsi0|500507680130aa01,1000000000000|Available|Enabled
+P|hdisk1|fscsi1|500507680130aa02,1000000000000|Available|Failed
+P|hdisk2|fscsi0|500507680130aa01,2000000000000|Available|Enabled
+O|hdisk1|1 failed and 0 other non-enabled path(s) of 2
+D|hdisk0|Available|U9105.42A.SYN0001-V5-C10-T1-W500507680130AA01-L0|rootvg|00aa000000000101|51200|PCM/friend/fcpother|shortest_queue|no_reserve|32|60|2|2|0|0|1|AIX PCM|MPIO FC 2145
+D|hdisk1|Available|U9105.42A.SYN0001-V5-C10-T1-W500507680130AA01-L1000000000000|datavg|00aa000000000102|102400|PCM/friend/fcpother|shortest_queue|no_reserve|32|60|2|1|1|0|1|AIX PCM|MPIO FC 2145
+O|hdisk2|only one path
+O|hdisk2|hcheck_interval=0: failed paths are not health-checked back
+D|hdisk2|Available|U9105.42A.SYN0001-V5-C10-T1-W500507680130AA01-L2000000000000|appvg(concurrent)|00aa000000000103|-|PCM/friend/fcpother|round_robin|single_path|16|0|1|1|0|0|-|AIX PCM|MPIO FC 2145
+O|hdisk2|concurrent VG member with reserve_policy=single_path
+H|multipath|AIX-PCM
+T|fscsi0|10000090FA000101|Up|500507680130aa01|3|0|0|0|0x010100
+T|fscsi1|10000090FA000102|Down|500507680130aa02|0|0|3|0|0x020100
+C|adapters|OK|0.080|0|-|lsdev -Cc adapter -F name:status:location:description
+C|fc_attrs|OK|0.300|0|-|aattr
+A|fcs0|Available|U9105.42A.SYN0001-V5-C10-T1|virtual fc (NPIV client)|10000090FA000101|fscsi0|fast_fail|yes|Virtual Fibre Channel Client Adapter
+A|fcs1|Available|U9105.42A.SYN0001-V5-C11-T1|virtual fc (NPIV client)|10000090FA000102|fscsi1|delayed_fail|no|Virtual Fibre Channel Client Adapter
+O|fscsi1|fc_err_recov=delayed_fail (fast_fail is the usual setting with multipath)
+O|fscsi1|dyntrk=no (yes lets paths survive fabric N_Port ID changes)
+C|fcstat_fcs0|OK|0.300|0|-|fcstat fcs0
+L|fcs0|64 GBIT|Fabric|none
+C|fcstat_fcs1|OK|0.300|0|-|fcstat fcs1
+L|fcs1|64 GBIT|Fabric|none
+C|vios|NA|0|-|not a VIOS (no /usr/ios/cli/ioscli)|-
+H|elapsed_s|4.2
+H|checks|total=24 ok=21 missing=1 na=3

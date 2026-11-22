@@ -1,0 +1,10 @@
+Total Dual Active and Active/Asymmetric Devices : 2
+
+DEV#:   1  DEVICE NAME: hdisk1  TYPE: 2145  ALGORITHM:  Load Balance
+SERIAL: 60050768018000000000000000000001
+==========================================================================
+Path#      Adapter/Path Name          State     Mode     Select     Errors
+    0*         fscsi0/path0           OPEN      NORMAL       10          0
+    1          fscsi0/path1           OPEN      NORMAL      100          0
+    2*         fscsi1/path2           DEAD      NORMAL        5          4
+    3          fscsi1/path3           OPEN      NORMAL      100          0

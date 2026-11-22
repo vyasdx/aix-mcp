@@ -1,0 +1,2 @@
+Device              Present Driver        Driver Options
+IBMSVC              NO_OVERRIDE           NO_OVERRIDE,AIX_AAPCM,AIX_non_MPIO

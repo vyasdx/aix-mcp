@@ -1,0 +1,4 @@
+Filesystem    1024-blocks      Free %Used    Iused %Iused Mounted on
+/dev/hd4          2097152   1048576   50%    10000     5% /
+/dev/hd2          6291456   1048576   84%    60000    20% /usr
+/dev/datalv     104857600  52428800   50%     1000     1% /data

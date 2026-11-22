@@ -1,0 +1,5 @@
+PCM PCM/friend/vscsi
+algorithm fail_over
+hcheck_interval 60
+queue_depth 3
+reserve_policy no_reserve

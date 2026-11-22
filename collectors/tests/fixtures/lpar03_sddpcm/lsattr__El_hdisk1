@@ -1,0 +1,5 @@
+PCM PCM/friend/sddpcm
+algorithm load_balance
+hcheck_interval 60
+queue_depth 20
+reserve_policy no_reserve

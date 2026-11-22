@@ -1,0 +1,8 @@
+  node       mounted        mounted over    vfs       date        options
+-------- ---------------  ---------------  ------ ------------ ---------------
+         /dev/hd4         /                jfs2   Nov 01 10:00 rw,log=/dev/hd8
+         /dev/hd2         /usr             jfs2   Nov 01 10:00 rw,log=/dev/hd8
+         /dev/hd9var      /var             jfs2   Nov 01 10:00 rw,log=/dev/hd8
+         /dev/hd3         /tmp             jfs2   Nov 01 10:00 rw,log=/dev/hd8
+         /dev/VMLibrary   /var/vio/VMLibrary jfs2 Nov 01 10:00 rw,log=INLINE
+         /proc            /proc            procfs Nov 01 10:00 rw

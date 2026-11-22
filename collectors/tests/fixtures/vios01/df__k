@@ -1,0 +1,6 @@
+Filesystem    1024-blocks      Free %Used    Iused %Iused Mounted on
+/dev/hd4          2097152   1048576   50%    10000     5% /
+/dev/hd2          6291456   1048576   84%    60000    20% /usr
+/dev/hd9var       1048576    524288   50%     5000     4% /var
+/dev/hd3          2097152   2000000    5%      100     1% /tmp
+/dev/VMLibrary   10485760   2097152   80%       10     1% /var/vio/VMLibrary

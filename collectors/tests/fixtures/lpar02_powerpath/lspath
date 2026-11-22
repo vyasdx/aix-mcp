@@ -1,0 +1,4 @@
+hdisk0:vscsi0:810000000000:Available:Enabled
+hdisk0:vscsi1:810000000000:Available:Enabled
+hdisk1:fscsi0:5000097300aa0001,1000000000000:Available:Enabled
+hdisk2:fscsi1:5000097300aa0002,1000000000000:Available:Enabled

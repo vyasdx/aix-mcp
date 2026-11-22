@@ -1,0 +1,3 @@
+hdisk0          00cc000000000001                    rootvg          active
+hdisk1          00cc000000000002                    appvg           active
+hdisk2          00cc000000000003                    sharedvg        concurrent
