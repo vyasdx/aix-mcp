@@ -24,7 +24,8 @@ the AIX guest OS. It turns read-only evidence from your hosts into typed, filter
 * disks and multipath;
 * FC and NPIV;
 * VIOS mappings;
-* filesystems.
+* filesystems;
+* **performance history**: CPU against entitlement, memory, paging and disk busy.
 
 Any MCP client can use it: an IDE assistant, a chat app or your own agent. It never changes
 anything.
@@ -97,6 +98,7 @@ flowchart LR
 | **Read-only by construction** | No tool runs a command. In v0.1 the server only reads collector files, and every tool is annotated `readOnlyHint`. |
 | **Nothing installed on AIX** | One ksh93 script that uses base AIX commands. No Python, agent or daemon on the host. |
 | **Allowlisted commands** | The collector refuses anything that is not on its list. The full list is in [docs/commands.md](docs/commands.md). |
+| **No root over SSH** | Live collection (v0.2) logs in as a non-root user whose key is tied to a forced command: a fixed set of verbs, no shell, no forwarding. One exact sudo rule runs the storage collector; performance history needs no root at all. The MCP server never holds the SSH key. |
 | **Never stalls a host** | Each command runs under a watchdog, and a hung `df` on a dead NFS mount is abandoned and marked `MISSING`. A run budget caps the total time, and the script runs at `nice 19`. A lab run took about 2.5 s and 0.2 s of CPU. |
 | **Never reads remote data** | NFS, CIFS and autofs client mounts are listed from the mount table only. File contents are never read. |
 | **Missing is not healthy** | Gaps are reported with the command to run by hand. |
@@ -110,14 +112,22 @@ pip install git+https://github.com/vyasdx/aix-mcp      # PyPI release coming
 aix-mcp findings tests/data                             # try it on synthetic evidence
 ```
 
-**1. Collect on each host** (as root; read-only):
+**1. Collect.** There are two ways.
 
-```sh
-/usr/bin/ksh93 aix_storage_paths.ksh -o /tmp/aixmcp_storage
-```
+* **Live over SSH (v0.2).** Install the forced-command dispatcher once per host as root (it
+  creates a key-only user and one exact sudo rule). Then pull from the management server:
 
-Copy the resulting `<host>_storage_<UTC>.kh` files to an evidence directory on your management
-server. Use the tooling you already trust, for example `scp` or Ansible `fetch`.
+  ```sh
+  ksh93 install_dispatch.ksh -k aixmcp.pub -f "<management server IPs>"      # on each AIX host
+  ```
+  ```bash
+  aix-mcp collect hosts.txt --evidence-dir /srv/aix-evidence --key ~/.ssh/aixmcp   # management server
+  ```
+
+  See [docs/live-collection.md](docs/live-collection.md) for what the dispatcher allows and the
+  security tests run on a real LPAR.
+* **By hand.** Run `ksh93 aix_storage_paths.ksh` as root and copy the `.kh` files with the
+  tooling you already trust.
 
 **2. Point your MCP client at it** (see [examples/](examples/)):
 
@@ -143,12 +153,23 @@ server. Use the tooling you already trust, for example `scp` or Ansible `fetch`.
 | `aix_missing_checks` | What could we *not* collect, and the command to run by hand | host or estate |
 | `aix_lpar_identity` | The machine type-model, serial and partition id, which form the join key to HMC data | host |
 | `aix_host_storage` | Full evidence for one host, limited to the sections you ask for | host |
+| `aix_perf_summary` | How a host looked each day: CPU busy, physc against entitlement and VPs, run queue, memory, paging, busiest disks (avg, p95, max) | host |
+| `aix_perf_top` | The top LPARs by one metric, e.g. physc p95, time over entitlement or paging space | estate |
+| `aix_perf_findings` | CPU at the VP ceiling, run queue, paging I/O, %comp, busy disks, and very low use (a rightsizing hint) | host or estate |
 
 Every tool has a typed **output schema**, a `schema_version`, `evidence_age_hours`, a `limit`
 (default 100, max 1000) and an opaque `next_cursor`. Estate-wide questions are filtered on the
 server, so a question across 1000 LPARs returns only the rows that matter. This works with plain
 tool-calling clients and with code-execution ("code mode") clients. See
 [docs/code-mode.md](docs/code-mode.md).
+
+## Performance history you already have
+
+On a default install, AIX keeps a **5-minute performance recording** in `/var/perf/daily`,
+started from the `xmdaily` inittab entry. This was seen on AIX 7.3 TL4. `topasout -a` turns each
+day into nmon-format CSV. aix-mcp fetches those days without root and without nmon cron jobs,
+then summarises them per day for trends and estate rankings. nmon `.nmon` files work too. See
+[docs/performance.md](docs/performance.md).
 
 ## What the collector covers
 
@@ -167,8 +188,9 @@ The test suite covers synthetic VIOS, PowerPath and SDDPCM setups.
 
 ## Roadmap
 
-* **v0.2:** live collection over SSH through a forced-command dispatcher. It uses a non-root user,
-  and the allowlist is enforced on the host.
+* **v0.2 (in progress):** live collection over SSH through a forced-command dispatcher, and
+  performance history. Both are done and lab-tested. Still to do: an Ansible role, and RBAC as
+  an alternative to sudo.
 * **Next collectors:** VG capacity, an `errpt` summary, paging and memory, and `lppchk`/`emgr`
   state.
 * **Later:** streamable HTTP with authentication, and a PyPI release with trusted publishing.
@@ -190,7 +212,7 @@ Please never post client data. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ```bash
 pip install -e ".[dev]" && pytest                # Python tests
-ksh93 collectors/tests/run_fixtures.ksh          # collector fixture tests (on AIX)
+ksh93 collectors/tests/run_fixtures.ksh          # collector fixture tests (on AIX, as root)
 ```
 
 ## License

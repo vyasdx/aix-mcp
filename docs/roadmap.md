@@ -12,10 +12,12 @@ Priorities follow user feedback. Open an issue to argue for a change.
 
 ## v0.2: live collection over SSH
 
-- [ ] Forced-command dispatcher (`dispatch`) with a fixed set of verbs
-- [ ] Setup for a non-root user, with an RBAC role or sudo rule for the few root-only queries
+- [x] Forced-command dispatcher (`dispatch`) with a fixed set of verbs, lab-tested against injection and forwarding
+- [x] Installer: key-only non-root user, `restrict` + `from=` key, one exact sudo rule checked by `visudo`
+- [ ] RBAC alternative to sudo (lab test pending)
 - [ ] An Ansible role that deploys the dispatcher, keys and collectors
-- [ ] Server-side fan-out with concurrency limits and per-host timeouts
+- [x] `aix-mcp collect`: parallel pull with per-request timeouts, strict host keys, incremental perf days
+- [x] Performance history from the AIX persistent recording (`topasout -a`), with summaries, rankings and findings
 
 ## More collectors
 

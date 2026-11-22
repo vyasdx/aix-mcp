@@ -102,6 +102,77 @@ class MissingPage(Page):
     items: list[MissingCheck]
 
 
+class Stat(BaseModel):
+    avg: float | None
+    p95: float | None
+    max: float | None
+
+
+class DiskBusy(Stat):
+    disk: str
+
+
+class PerfDaySummary(BaseModel):
+    host: str
+    date: str = Field(description="YYYY-MM-DD (host local time of the recording)")
+    interval_s: int | None = Field(description="Seconds between snapshots, 300 by default")
+    snapshots: int
+    cpu_busy_pct: Stat | None = Field(description="100 - idle, logical CPU view")
+    cpu_wait_pct: Stat | None
+    physc: Stat | None = Field(description="Physical processors consumed")
+    entitled: float | None = Field(description="Entitled capacity (EC)")
+    virtual_cpus: float | None
+    logical_cpus: float | None
+    pct_time_over_entitlement: float | None = Field(
+        description="Share of snapshots with physc above EC (uncapped borrowing)")
+    physc_peak_hour: str | None = Field(description="Hour (HH) with the highest average physc")
+    runq: Stat | None
+    memory_mb: int | None
+    mem_comp_pct: Stat | None = Field(description="Computational memory %")
+    pgsp_used_pct: Stat | None = Field(description="Paging space used %")
+    pgsp_pageout_per_s: Stat | None
+    busiest_disks: list[DiskBusy] = Field(description="Top disks by %busy p95")
+
+
+class PerfPage(Page):
+    items: list[PerfDaySummary]
+
+
+PerfRankMetric = Literal[
+    "physc_p95", "physc_max", "cpu_busy_p95", "pct_time_over_entitlement", "runq_p95",
+    "mem_comp_max", "pgsp_used_max", "pgsp_pageout_p95", "disk_busy_p95",
+]
+
+
+class PerfRank(BaseModel):
+    host: str
+    value: float
+    date: str = Field(description="Day the value was reached")
+    entitled: float | None
+    virtual_cpus: float | None
+    days_considered: int
+
+
+class PerfRankPage(Page):
+    metric: str
+    items: list[PerfRank]
+
+
+class PerfFinding(BaseModel):
+    host: str
+    id: str = Field(description="perf_vcpu_ceiling, perf_over_entitlement, perf_low_utilisation, "
+                                "perf_run_queue, perf_paging_space_io, perf_paging_space_used, "
+                                "perf_computational_memory, perf_disk_busy")
+    severity: Severity
+    subject: str
+    summary: str
+    evidence: dict[str, Any]
+
+
+class PerfFindingsPage(Page):
+    items: list[PerfFinding]
+
+
 class HostStorage(Evidenced):
     schema_version: str = SCHEMA_VERSION
     header: dict[str, str]

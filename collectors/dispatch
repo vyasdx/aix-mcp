@@ -1,0 +1,84 @@
+#!/usr/bin/ksh93
+# dispatch  v0.2 - forced-command entry point for aix-mcp live collection.
+# Part of aix-mcp (https://github.com/vyasdx/aix-mcp). Apache-2.0. Not affiliated with IBM.
+#
+# Installed as /opt/aixmcp/bin/dispatch (root:system 0755) and named in the
+# authorized_keys entry of the non-root collection user:
+#   command="/opt/aixmcp/bin/dispatch",restrict,from="<management hosts>" ssh-ed25519 AAAA...
+# sshd then runs this script for every login with that key, whatever the client asked
+# for. The client's request is only read from SSH_ORIGINAL_COMMAND and must be one of
+# the verbs below, exactly. Anything else is refused and logged.
+#
+# Verbs
+#   version            dispatcher version, short host name, collector version
+#   storage            run the storage collector (root via one exact sudo rule) and print its records
+#   storage quick      same with -q (no per-disk size, no fcstat)
+#   perf list          list the local daily performance recordings: YYMMDD|bytes
+#   perf day YYMMDD    one day's recording as nmon-format CSV (topasout -a); no root needed
+#
+# Every request is logged to syslog (user.info, tag aixmcp-dispatch) with the peer address.
+
+set -o noglob
+export PATH=/usr/bin:/usr/sbin:/etc LANG=C LC_ALL=C
+unset ENV AIXMCP_TEST_BIN AIXMCP_IOSCLI AIXMCP_EXPORTS AIXMCP_SELFTEST_HANG
+umask 077
+
+VERSION=0.2
+BASE=/opt/aixmcp
+COLLECTOR=$BASE/libexec/aix_storage_paths.ksh
+STORE=/var/aixmcp/storage          # root-owned, created by the installer
+PERFDIR=/var/perf/daily            # AIX persistent local recording (topasrec, inittab xmdaily)
+PRIV=sudo                          # how the collector gets root: sudo (one exact rule)
+
+req=${SSH_ORIGINAL_COMMAND:-}
+peer=${SSH_CLIENT%% *}
+
+function audit { logger -p user.info -t aixmcp-dispatch -- "peer=${peer:-local} request=\"$1\" result=$2" 2>/dev/null; }
+function refuse { print -u2 -- "aixmcp-dispatch: $1"; audit "$req" refused; exit 2; }
+
+# Short, lower-case letters, digits and single spaces only. No quoting, no globbing, no options.
+(( ${#req} <= 32 )) && [[ $req == +([a-z0-9 ]) ]] || refuse "request not allowed (send one of: version, storage, storage quick, perf list, perf day YYMMDD)"
+
+case $req in
+version)
+    print -- "dispatch $VERSION"
+    h=$(hostname 2>/dev/null); print -- "host ${h%%.*}"
+    print -- "collector $(sed -n 's/^VERSION=//p' $COLLECTOR 2>/dev/null | head -1)"
+    audit "$req" ok
+    ;;
+storage|"storage quick")
+    q=""
+    [[ $req == "storage quick" ]] && q="-q"
+    [[ -x $COLLECTOR ]] || refuse "collector not installed"
+    # exact argument order matters: it must match the sudo rule written by the installer
+    sudo -n $COLLECTOR -k $q -o $STORE
+    rc=$?
+    audit "$req" "rc=$rc"
+    exit $rc
+    ;;
+"perf list")
+    ls -l $PERFDIR 2>/dev/null | awk '$NF ~ /_[0-9][0-9][0-9][0-9][0-9][0-9]\.topas$/ {
+        n=$NF; d=substr(n, length(n)-11, 6); print d "|" $5 }' | sort
+    audit "$req" ok
+    ;;
+"perf day "[0-9][0-9][0-9][0-9][0-9][0-9])
+    d=${req##* }
+    f=$(ls -1 $PERFDIR 2>/dev/null | grep "_$d\.topas\$" | head -1)
+    [[ -n $f ]] || refuse "no recording for $d"
+    tmp=$HOME/.aixmcp_perf.$$
+    rm -rf "$tmp"; mkdir -m 700 "$tmp" || refuse "cannot create work directory"
+    trap 'rm -rf "$tmp"' EXIT
+    # topasout writes <input>.csv next to its input, so convert a private copy
+    if cp "$PERFDIR/$f" "$tmp/day.topas" && topasout -a "$tmp/day.topas" >/dev/null 2>&1 \
+        && [[ -s $tmp/day.topas.csv ]]; then
+        cat "$tmp/day.topas.csv"
+        audit "$req" ok
+    else
+        refuse "topasout could not convert $f"
+    fi
+    ;;
+*)
+    refuse "unknown request"
+    ;;
+esac
+exit 0

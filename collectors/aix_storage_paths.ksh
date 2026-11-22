@@ -21,12 +21,14 @@
 #     run by hand. A whole-run time budget stops new checks when it is used up.
 #   - Runs at low priority (renice 19).
 #
-# Usage: aix_storage_paths.ksh [-o dir] [-t secs] [-b secs] [-q] [-v]
+# Usage: aix_storage_paths.ksh [-o dir] [-t secs] [-b secs] [-q] [-v] [-k]
 #   -o dir   output directory (default /tmp/aixmcp_storage)
 #   -t secs  per-check timeout (default 10)
 #   -b secs  whole-run budget (default 120)
 #   -q       quick: ODM and driver tables only; skip per-disk size and fcstat (device queries)
 #   -v       also print per-disk path detail
+#   -k       print the records (.kh) on stdout instead of the summary, and keep only the
+#            newest 10 runs of this host in the output directory (used by dispatch)
 #
 # Output
 #   <dir>/<host>_storage_<UTC>.kh    pipe-delimited records (layout at the end of this file)
@@ -36,8 +38,14 @@
 # The .kh file holds host names, WWPNs and LUN ids. Keep it on the management tier;
 # pseudonymise it before it leaves the site.
 
-VERSION=0.1
-PATH=${AIXMCP_TEST_BIN:+$AIXMCP_TEST_BIN:}/usr/bin:/usr/sbin:/etc:/usr/ios/cli:/usr/lpp/EMC/Symmetrix/bin:/usr/DynamicLinkManager/bin:$PATH
+VERSION=0.2
+# The AIXMCP_* test hooks are for fixture tests only. They are ignored when the script was
+# elevated (sudo, or RBAC with a different effective uid): a hook must never steer PATH
+# for a root process. The caller's PATH is never inherited either.
+if [[ -n $SUDO_USER || $(/usr/bin/id -ru) != $(/usr/bin/id -u) ]]; then
+    unset AIXMCP_TEST_BIN AIXMCP_IOSCLI AIXMCP_EXPORTS AIXMCP_SELFTEST_HANG
+fi
+PATH=${AIXMCP_TEST_BIN:+$AIXMCP_TEST_BIN:}/usr/bin:/usr/sbin:/etc:/usr/ios/cli:/usr/lpp/EMC/Symmetrix/bin:/usr/DynamicLinkManager/bin
 export PATH LANG=C LC_ALL=C
 
 OUTDIR=/tmp/aixmcp_storage
@@ -45,13 +53,15 @@ TMO=10
 BUDGET=120
 QUICK=0
 VERBOSE=0
-while getopts "o:t:b:qv" opt; do
+STREAM=0
+while getopts "o:t:b:qvk" opt; do
     case $opt in
         o) OUTDIR=$OPTARG ;;
         t) TMO=$OPTARG ;;
         b) BUDGET=$OPTARG ;;
         q) QUICK=1 ;;
         v) VERBOSE=1 ;;
+        k) STREAM=1 ;;
         *) sed -n '2,40p' "$0"; exit 1 ;;
     esac
 done
@@ -487,6 +497,16 @@ typeset -F1 TOTAL
 (( TOTAL = SECONDS - START ))
 rec H elapsed_s "$TOTAL"
 rec H checks "total=$NCHK ok=$NOK missing=$NMISS na=$NNA"
+
+if (( STREAM )); then
+    # keep the newest 10 runs of this host; names are <host>_storage_<UTC>, so they sort by time
+    ls -1d "$OUTDIR/${HOST}_storage_"*.kh 2>/dev/null | sort -r | sed '1,10d' | while read -r old; do
+        [[ $old == "$OUTDIR/${HOST}_storage_"*.kh ]] || continue
+        rm -f "$old"; rm -rf "${old%.kh}.raw"
+    done
+    cat "$OUT"
+    exit 0
+fi
 
 print "Host $HOST  role $ROLE  AIX $(head -1 $RAW/oslevel.out 2>/dev/null)  multipath: ${MP_DRIVERS:-none detected}"
 print "Mounts: $NLOCAL local, $NCLUSTER cluster, $NREMOTE remote client (not read), $NPSEUDO pseudo, $NOTHER other (not read)   NFS server: $NFS_SERVER, exports $NEXPORT"

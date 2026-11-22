@@ -27,6 +27,21 @@ the complete list.
 | `ps -e -o pid= -o ppid=` | Used by the watchdog to find child processes to stop | No |
 | `hostname` | Output file name | No |
 
+## Dispatcher (live collection, v0.2)
+
+`collectors/dispatch` is the forced command for the collection user. Apart from running the
+collector above through sudo, it runs only the following:
+
+| Command | Purpose | Root? |
+|---|---|---|
+| `hostname` | Short host name for the evidence folder | no |
+| `sed`, `head` on the installed collector | Report the collector version | no |
+| `ls -l /var/perf/daily` | List daily performance recordings | no |
+| `cp <recording> ~aixmcp/.aixmcp_perf.<pid>/`, `topasout -a <copy>`, `cat <csv>`, `rm -rf` of that private directory | Convert one day to nmon-format CSV | no |
+| `logger -p user.info -t aixmcp-dispatch` | Audit line per request | no |
+
+Requests and how they are refused are described in [live-collection.md](live-collection.md).
+
 ## Behaviour on trouble
 
 * **Per-check timeout** (`-t`, default 10 s): a check that runs too long is sent TERM, then KILL.

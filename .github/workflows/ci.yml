@@ -29,6 +29,6 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y ksh
       - name: ksh93 syntax check
         run: |
-          for f in collectors/*.ksh collectors/tests/run_fixtures.ksh collectors/tests/stub; do
+          for f in collectors/*.ksh collectors/dispatch collectors/tests/run_fixtures.ksh collectors/tests/stub; do
             echo "== $f"; ksh -n "$f"
           done

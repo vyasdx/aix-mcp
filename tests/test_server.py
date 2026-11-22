@@ -14,7 +14,8 @@ from mcp.client.stdio import stdio_client  # noqa: E402
 DATA = Path(__file__).parent / "data"
 TRACE = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
 TOOLS = {"aix_list_hosts", "aix_lpar_identity", "aix_findings", "aix_path_health",
-         "aix_missing_checks", "aix_host_storage"}
+         "aix_missing_checks", "aix_host_storage", "aix_perf_summary", "aix_perf_top",
+         "aix_perf_findings"}
 
 
 def _sc(result):
@@ -84,6 +85,20 @@ async def test_tools_over_stdio(tmp_path):
 
             ident = _sc(await s.call_tool("aix_lpar_identity", {"host": "host-01"}))
             assert (ident["machine_serial"], ident["partition_id"]) == ("02SYN0001", 5)
+
+            perf = _sc(await s.call_tool("aix_perf_summary", {"host": "host-01"}))
+            assert perf["items"][0]["date"] == "2026-11-20"
+            assert perf["items"][0]["physc"]["max"] == 1.95
+            top = _sc(await s.call_tool("aix_perf_top", {"metric": "pct_time_over_entitlement"}))
+            assert top["metric"] == "pct_time_over_entitlement"
+            assert [(r["host"], r["value"]) for r in top["items"]] == [("host-01", 75.0)]
+            pf = _sc(await s.call_tool("aix_perf_findings", {"min_severity": "medium"}))
+            assert {f["id"] for f in pf["items"]} == {
+                "perf_vcpu_ceiling", "perf_run_queue", "perf_paging_space_io",
+                "perf_computational_memory", "perf_paging_space_used", "perf_disk_busy"}
+            assert _sc(await s.call_tool("aix_perf_findings", {"min_severity": "high"}))["total"] == 0
+            assert (await s.call_tool("aix_perf_summary", {"host": "vios-01"})).isError
+            assert (await s.call_tool("aix_perf_top", {"metric": "nonsense"})).isError
 
             assert (await s.call_tool("aix_lpar_identity", {"host": "../etc"})).isError
             assert (await s.call_tool("aix_findings", {"limit": 5000})).isError

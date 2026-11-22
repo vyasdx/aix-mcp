@@ -33,8 +33,10 @@ from . import __version__
 from .findings import SEVERITY_ORDER, all_findings
 from .models import (
     DiskPaths, Finding, FindingsPage, HostInfo, HostsPage, HostStorage, LparIdentity,
-    MissingCheck, MissingPage, PathsPage, Section, Severity,
+    MissingCheck, MissingPage, PathsPage, PerfDaySummary, PerfFinding, PerfFindingsPage,
+    PerfPage, PerfRank, PerfRankMetric, PerfRankPage, Section, Severity,
 )
+from .perf import parse_nmon_file, perf_findings, summarise
 from .records import Collection, load_dir, to_dict
 
 INSTRUCTIONS = """\
@@ -45,6 +47,8 @@ next_cursor for more. Every item carries evidence_age_hours: say how old the
 evidence is. A check marked MISSING was not collected (slow, hung or stale
 command); never treat missing data as healthy. Join with HMC-level tools on
 machine_type_model + machine_serial + partition_id (aix_lpar_identity).
+Performance history (aix_perf_*) comes from the AIX daily recording at 5-minute
+intervals: aix_perf_top ranks the estate, aix_perf_summary covers one host.
 """
 
 READ_ONLY = ToolAnnotations(readOnlyHint=True, destructiveHint=False,
@@ -85,17 +89,51 @@ class Evidence:
         self.directory = Path(directory)
         self.stamp: tuple[int, float] | None = None
         self._hosts: dict[str, Collection] = {}
+        self._perf: dict[str, list[dict[str, Any]]] = {}
+
+    def _files(self, pattern: str) -> list[Path]:
+        return list(self.directory.rglob(pattern)) if self.directory.is_dir() else []
 
     def _current_stamp(self) -> tuple[int, float]:
-        files = list(self.directory.rglob("*.kh")) if self.directory.is_dir() else []
+        files = self._files("*.kh") + self._files("*.nmon.csv") + self._files("*.nmon")
         return len(files), max((f.stat().st_mtime for f in files), default=0.0)
 
-    def hosts(self) -> dict[str, Collection]:
+    def _refresh(self) -> None:
         stamp = self._current_stamp()
-        if stamp != self.stamp:
-            self._hosts = load_dir(self.directory) if self.directory.is_dir() else {}
-            self.stamp = stamp
+        if stamp == self.stamp:
+            return
+        self._hosts = load_dir(self.directory) if self.directory.is_dir() else {}
+        perf: dict[str, dict[str, dict[str, Any]]] = {}
+        for p in sorted(self._files("*.nmon.csv") + self._files("*.nmon")):
+            day = parse_nmon_file(p)
+            # files pulled by `aix-mcp collect` live in <evidence>/<host>/perf/
+            host = p.parent.parent.name if p.parent.name == "perf" else (day.host or p.stem)
+            if not day.date or not _HOST_RE.match(host):
+                continue
+            summ = summarise(day)
+            summ["host"] = host
+            old = perf.setdefault(host, {}).get(day.date)
+            if old is None or summ["snapshots"] > old["snapshots"]:
+                perf[host][day.date] = summ
+        self._perf = {h: [d[k] for k in sorted(d)] for h, d in perf.items()}
+        self.stamp = stamp
+
+    def hosts(self) -> dict[str, Collection]:
+        self._refresh()
         return self._hosts
+
+    def perf_days(self, host: str | None, days: int) -> dict[str, list[dict[str, Any]]]:
+        """Newest `days` daily summaries per host."""
+        if not 1 <= days <= 92:
+            raise ValueError("days must be between 1 and 92")
+        self._refresh()
+        if host:
+            if not _HOST_RE.match(host):
+                raise ValueError("host must be a short host name (letters, digits, . _ -)")
+            if host not in self._perf:
+                raise ValueError(f"no performance history for host {host!r}")
+            return {host: self._perf[host][-days:]}
+        return {h: v[-days:] for h, v in sorted(self._perf.items())}
 
     def host(self, name: str) -> Collection:
         if not _HOST_RE.match(name or ""):
@@ -183,12 +221,12 @@ def build_server(evidence_dir: str | Path) -> FastMCP:
         _audit(ctx, tool, args, t0, returned=getattr(out, "returned", 1))
         return out
 
-    def paged(model, items, tool, args, limit, cursor, hosts_considered, note=None):
+    def paged(model, items, tool, args, limit, cursor, hosts_considered, note=None, **extra):
         chunk, total, nxt = _page(items, tool, args, ev.stamp, limit, cursor)
         if nxt and note is None:
             note = f"{total} items; showing {len(chunk)}. Narrow with host or filters, or follow next_cursor."
         return model(total=total, returned=len(chunk), next_cursor=nxt,
-                     hosts_considered=hosts_considered, note=note, items=chunk)
+                     hosts_considered=hosts_considered, note=note, items=chunk, **extra)
 
     @mcp.tool(annotations=READ_ONLY)
     def aix_list_hosts(ctx: Context, limit: int = DEFAULT_LIMIT,
@@ -297,6 +335,75 @@ def build_server(evidence_dir: str | Path) -> FastMCP:
                                evidence_age_hours=_age_hours(col.collected_at),
                                header=data["header"], sections=secs)
         return run(ctx, "aix_host_storage", args, go)
+
+    @mcp.tool(annotations=READ_ONLY)
+    def aix_perf_summary(ctx: Context, host: str, days: int = 7, limit: int = DEFAULT_LIMIT,
+                         cursor: str | None = None) -> PerfPage:
+        """Daily performance summary for one host from its 5-minute history: CPU busy,
+        physc against entitlement and virtual CPUs, run queue, memory, paging space and
+        the busiest disks (avg, p95, max per day). Oldest day first."""
+        args = {"host": host, "days": days, "limit": limit}
+
+        def go():
+            items = [PerfDaySummary(**d) for d in ev.perf_days(host, days)[host]]
+            return paged(PerfPage, items, "aix_perf_summary", args, limit, cursor, 1)
+        return run(ctx, "aix_perf_summary", args, go)
+
+    @mcp.tool(annotations=READ_ONLY)
+    def aix_perf_top(ctx: Context, metric: PerfRankMetric = "physc_p95", days: int = 7,
+                     limit: int = 10, cursor: str | None = None) -> PerfRankPage:
+        """Rank every host by one performance metric over the last `days` days (each
+        host's worst day), highest first. E.g. physc_p95 for CPU-hungry LPARs,
+        pct_time_over_entitlement for LPARs living on borrowed capacity,
+        pgsp_used_max for memory pressure."""
+        args = {"metric": metric, "days": days, "limit": limit}
+        names = {"physc": "physc", "cpu_busy": "cpu_busy_pct", "runq": "runq",
+                 "mem_comp": "mem_comp_pct", "pgsp_used": "pgsp_used_pct",
+                 "pgsp_pageout": "pgsp_pageout_per_s"}
+
+        def value(d: dict[str, Any]) -> float | None:
+            if metric == "pct_time_over_entitlement":
+                return d.get("pct_time_over_entitlement")
+            if metric == "disk_busy_p95":
+                vals = [x["p95"] for x in d.get("busiest_disks", []) if x.get("p95") is not None]
+                return max(vals) if vals else None
+            name, stat = metric.rsplit("_", 1)
+            return (d.get(names[name]) or {}).get(stat)
+
+        def go():
+            per_host = ev.perf_days(None, days)
+            items = []
+            for h, ds in per_host.items():
+                scored = [(value(d), d) for d in ds]
+                scored = [(v, d) for v, d in scored if v is not None]
+                if not scored:
+                    continue
+                v, d = max(scored, key=lambda x: x[0])
+                items.append(PerfRank(host=h, value=v, date=d["date"], entitled=d["entitled"],
+                                      virtual_cpus=d["virtual_cpus"], days_considered=len(ds)))
+            items.sort(key=lambda r: (-r.value, r.host))
+            return paged(PerfRankPage, items, "aix_perf_top", args, limit, cursor,
+                         len(per_host), metric=metric)
+        return run(ctx, "aix_perf_top", args, go)
+
+    @mcp.tool(annotations=READ_ONLY)
+    def aix_perf_findings(ctx: Context, host: str | None = None, days: int = 7,
+                          min_severity: Severity = "low", limit: int = DEFAULT_LIMIT,
+                          cursor: str | None = None) -> PerfFindingsPage:
+        """Performance observations from the daily history: CPU at the virtual CPU
+        ceiling, long periods over entitlement, run queue, paging space use and I/O,
+        computational memory, busy disks. Whole estate when host is omitted."""
+        args = {"host": host, "days": days, "min_severity": min_severity, "limit": limit}
+
+        def go():
+            floor = SEVERITY_ORDER[min_severity]
+            per_host = ev.perf_days(host, days)
+            items = [PerfFinding(**f) for ds in per_host.values() for d in ds
+                     for f in perf_findings(d) if SEVERITY_ORDER[f["severity"]] >= floor]
+            items.sort(key=lambda f: (-SEVERITY_ORDER[f.severity], f.host, f.summary))
+            return paged(PerfFindingsPage, items, "aix_perf_findings", args, limit, cursor,
+                         len(per_host))
+        return run(ctx, "aix_perf_findings", args, go)
 
     @mcp.resource("aix-mcp://about")
     def about() -> str:
