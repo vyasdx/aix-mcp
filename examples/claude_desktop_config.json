@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "aix": {
+      "command": "aix-mcp",
+      "args": ["serve", "--evidence-dir", "/srv/aix-evidence"],
+      "env": { "AIX_MCP_AUDIT_LOG": "/var/log/aix-mcp/audit.jsonl" }
+    }
+  }
+}

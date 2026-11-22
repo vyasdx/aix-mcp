@@ -7,6 +7,7 @@ Priorities follow user feedback. Open an issue to argue for a change.
 - [x] Storage, multipath, FC and VIOS mapping collector, with watchdog and budget
 - [x] Synthetic fixture tests for VIOS, PowerPath and SDDPCM
 - [x] MCP server over stdio with six read-only tools
+- [x] Typed output schemas, paging cursors, evidence age and a per-call audit log with `traceparent`
 - [ ] First external testers on AIX 7.2 and 7.3 and on VIOS 3.1 and 4.1
 
 ## v0.2: live collection over SSH

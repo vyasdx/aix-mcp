@@ -64,6 +64,8 @@ risks, following the OWASP guidance for MCP servers, to what this project does.
 | Prompt injection from collected data | Evidence is returned as typed fields, not as instructions. Free-text fields (descriptions, notes) are short and come from AIX commands. |
 | Data exposure | Evidence holds host names, WWPNs and LUN ids. Keep the evidence directory on the management tier with normal file permissions, and pseudonymise it before it leaves the site. |
 | Host impact | Watchdog per command, a run budget, `nice 19`, and no I/O tests. Remote mounts are never touched. |
+| Untraceable automation | One JSON audit line per tool call, with tool, arguments, result count, duration and the caller's W3C `traceparent` from `_meta`. It goes to stderr, and to `AIX_MCP_AUDIT_LOG` if that is set. |
+| Oversized or mixed results | Every answer is paged (`limit` up to 1000, opaque cursor). A cursor is bound to its tool, its arguments and the evidence snapshot, so it cannot be replayed against other data. |
 | Supply chain | One runtime dependency (the MCP Python SDK). Releases are planned through PyPI trusted publishing with attestations. |
 
 ## What it will never do
