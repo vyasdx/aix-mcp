@@ -1,7 +1,12 @@
 # Changelog
 
-## Unreleased (0.2.0.dev0)
+## 0.2.0 (first PyPI release)
 
+- On PyPI as `aix-mcp`, and listed in the official MCP registry as `io.github.vyasdx/aix-mcp`.
+- `aix-mcp serve --demo` and `aix-mcp findings --demo` use bundled synthetic evidence, so the
+  server can be tried without an AIX host.
+- `aix-mcp collectors DIR` copies the AIX-side scripts (collector, dispatcher, installer) out of
+  the installed package.
 - Live collection over SSH:
   - `collectors/dispatch` is a forced-command entry point with the verbs `version`, `storage`,
     `storage quick`, `perf list` and `perf day YYMMDD`. Anything else is refused and logged to

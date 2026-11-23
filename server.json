@@ -1,0 +1,39 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.vyasdx/aix-mcp",
+  "title": "AIX guest OS (read-only)",
+  "description": "Read-only AIX guest-OS server: multipath, FC/NPIV, VIOS maps and performance history.",
+  "version": "0.2.0",
+  "repository": {
+    "url": "https://github.com/vyasdx/aix-mcp",
+    "source": "github"
+  },
+  "websiteUrl": "https://github.com/vyasdx/aix-mcp#readme",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "registryBaseUrl": "https://pypi.org",
+      "identifier": "aix-mcp",
+      "version": "0.2.0",
+      "runtimeHint": "uvx",
+      "transport": { "type": "stdio" },
+      "packageArguments": [
+        { "type": "positional", "value": "serve" }
+      ],
+      "environmentVariables": [
+        {
+          "name": "AIX_MCP_EVIDENCE_DIR",
+          "description": "Directory of evidence files written by 'aix-mcp collect' or the collector.",
+          "format": "filepath",
+          "isRequired": true
+        },
+        {
+          "name": "AIX_MCP_AUDIT_LOG",
+          "description": "Optional file for one JSON audit line per tool call.",
+          "format": "filepath",
+          "isRequired": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+<!-- mcp-name: io.github.vyasdx/aix-mcp -->
 <p align="center">
   <img src="https://raw.githubusercontent.com/vyasdx/aix-mcp/main/docs/assets/banner.svg" alt="aix-mcp: read-only MCP server for the AIX guest OS" width="100%">
 </p>
@@ -5,10 +6,11 @@
 <p align="center">
   <a href="https://github.com/vyasdx/aix-mcp/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/vyasdx/aix-mcp/actions/workflows/ci.yml/badge.svg"></a>
   <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-2dd4bf"></a>
+  <a href="https://pypi.org/project/aix-mcp/"><img alt="PyPI" src="https://img.shields.io/pypi/v/aix-mcp?color=2dd4bf"></a>
   <img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-2dd4bf">
   <img alt="MCP" src="https://img.shields.io/badge/MCP-server-2dd4bf">
   <img alt="read-only" src="https://img.shields.io/badge/mode-read--only-22c55e">
-  <img alt="status" src="https://img.shields.io/badge/status-pre--alpha-f59e0b">
+  <img alt="status" src="https://img.shields.io/badge/status-alpha-f59e0b">
 </p>
 
 <p align="center">
@@ -108,9 +110,18 @@ flowchart LR
 ## Quick start
 
 ```bash
-pip install git+https://github.com/vyasdx/aix-mcp      # PyPI release coming
-aix-mcp findings tests/data                             # try it on synthetic evidence
+pip install aix-mcp                    # or run it without installing: uvx aix-mcp --version
+aix-mcp findings --demo                # try it on the bundled synthetic evidence
+aix-mcp collectors ./aixmcp            # copy the AIX-side scripts for step 1
 ```
+
+**Try it in your MCP client without any AIX** (synthetic hosts `host-01` and `vios-01`):
+
+```json
+{ "mcpServers": { "aix-demo": { "command": "uvx", "args": ["aix-mcp", "serve", "--demo"] } } }
+```
+
+Then ask: *"Which disks are running on fewer paths than they should?"* or *"Was host-01 short of CPU?"*
 
 **1. Collect.** There are two ways.
 

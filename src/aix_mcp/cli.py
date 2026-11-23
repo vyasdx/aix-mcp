@@ -1,4 +1,4 @@
-"""Command line: ``aix-mcp serve``, ``aix-mcp parse``, ``aix-mcp findings``."""
+"""Command line: ``aix-mcp serve``, ``collect``, ``findings``, ``parse``, ``collectors``."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ import json
 import sys
 
 from . import __version__
+from .bundled import copy_collectors, demo_dir
 from .findings import all_findings
 from .records import load_dir, parse_file, to_dict
 
@@ -18,12 +19,15 @@ def main(argv: list[str] | None = None) -> int:
 
     s = sub.add_parser("serve", help="run the MCP server over stdio")
     s.add_argument("--evidence-dir", help="directory of *.kh files (or AIX_MCP_EVIDENCE_DIR)")
+    s.add_argument("--demo", action="store_true",
+                   help="serve the bundled synthetic evidence (no AIX needed)")
 
     pr = sub.add_parser("parse", help="print one .kh file as JSON")
     pr.add_argument("file")
 
     fi = sub.add_parser("findings", help="print findings for every host in a directory")
-    fi.add_argument("directory")
+    fi.add_argument("directory", nargs="?")
+    fi.add_argument("--demo", action="store_true", help="use the bundled synthetic evidence")
     fi.add_argument("--min-enabled-paths", type=int, default=2)
 
     co = sub.add_parser("collect", help="pull evidence from hosts over SSH (forced-command dispatcher)")
@@ -39,10 +43,13 @@ def main(argv: list[str] | None = None) -> int:
     co.add_argument("--perf-days", type=int, default=7, help="days of performance history (0: none)")
     co.add_argument("--no-storage", action="store_true")
 
+    cl = sub.add_parser("collectors", help="copy the AIX-side scripts (collector, dispatch, installer)")
+    cl.add_argument("dest", help="directory to copy them into")
+
     a = p.parse_args(argv)
     if a.cmd == "serve":
         from .server import main_serve  # imports the MCP SDK only when serving
-        main_serve(a.evidence_dir)
+        main_serve(str(demo_dir()) if a.demo else a.evidence_dir)
     elif a.cmd == "collect":
         from pathlib import Path
 
@@ -61,8 +68,15 @@ def main(argv: list[str] | None = None) -> int:
     elif a.cmd == "parse":
         json.dump(to_dict(parse_file(a.file)), sys.stdout, indent=2)
         print()
+    elif a.cmd == "collectors":
+        for f in copy_collectors(a.dest):
+            print(f)
+        print("Copy these to each AIX host; see docs/live-collection.md.", file=sys.stderr)
     elif a.cmd == "findings":
-        out = [f for col in load_dir(a.directory).values()
+        if bool(a.demo) == bool(a.directory):
+            p.error("findings: give a directory or --demo")
+        directory = str(demo_dir()) if a.demo else a.directory
+        out = [f for col in load_dir(directory).values()
                for f in all_findings(col, a.min_enabled_paths)]
         json.dump(out, sys.stdout, indent=2)
         print()

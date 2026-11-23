@@ -5,15 +5,15 @@ build-backend = "hatchling.build"
 [project]
 name = "aix-mcp"
 dynamic = ["version"]
-description = "Read-only MCP server for the AIX guest OS: storage, multipath and VIOS evidence for AI assistants. Not affiliated with IBM."
+description = "Read-only MCP server for the AIX guest OS: storage, multipath, VIOS and performance history for AI assistants. Not affiliated with IBM."
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
 requires-python = ">=3.10"
 authors = [{ name = "The aix-mcp authors" }]
-keywords = ["aix", "mcp", "model-context-protocol", "power", "vios", "multipath", "sre"]
+keywords = ["aix", "mcp", "model-context-protocol", "power", "vios", "multipath", "nmon", "sre"]
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: System Administrators",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
@@ -37,8 +37,14 @@ path = "src/aix_mcp/__init__.py"
 [tool.hatch.build.targets.wheel]
 packages = ["src/aix_mcp"]
 
+[tool.hatch.build.targets.wheel.force-include]
+"tests/data" = "aix_mcp/demo"
+"collectors/aix_storage_paths.ksh" = "aix_mcp/collectors/aix_storage_paths.ksh"
+"collectors/dispatch" = "aix_mcp/collectors/dispatch"
+"collectors/install_dispatch.ksh" = "aix_mcp/collectors/install_dispatch.ksh"
+
 [tool.hatch.build.targets.sdist]
-include = ["src", "collectors", "tests", "docs", "README.md", "LICENSE", "NOTICE", "SECURITY.md"]
+include = ["src", "collectors", "tests", "docs", "README.md", "LICENSE", "NOTICE", "SECURITY.md", "CHANGELOG.md", "server.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
