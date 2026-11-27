@@ -35,7 +35,9 @@ L2 and done on the HMC under change control. State the history window and eviden
    `cpu_busy_p95`, `pct_time_over_entitlement`, `runq_p95`, `mem_comp_max`, `pgsp_used_max`,
    `pgsp_pageout_p95` or `disk_busy_p95`.
 
-History comes from AIX's own 5-minute recording, converted once per day. Today's live problem may
+History comes from AIX's own 5-minute recording, converted once per day. **Missing recent
+days** usually mean the recorder stopped, most often because `/var` filled up; it then stays
+stopped until a reboot. Say so, and route the `/var` issue to **aix-filesystem-full**. Today's live problem may
 not be in it yet; then ask a human for the live commands in
 [references/live-commands.md](references/live-commands.md).
 

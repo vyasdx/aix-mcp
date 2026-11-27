@@ -35,6 +35,8 @@ anything.
 > Not affiliated with, endorsed by or supported by IBM. AIX, PowerVM and IBM Power are trademarks
 > of IBM Corp.
 
+Why it matters, what is tested and what is not yet: [docs/why-aix-mcp.md](docs/why-aix-mcp.md).
+
 ## What it looks like
 
 > **You:** Any storage problems across the estate I should know about before tonight's change?

@@ -61,6 +61,13 @@ to the alerted directory and stop if the host is already slow.
 | VG has no free PPs | Needs storage | Storage request, L2 |
 | Repeat alerts | Capacity design | Problem record, L3 |
 
+**A full `/var` has side effects** (seen on an AIX 7.3 lab LPAR): the error log records
+`J2_FS_FULL`, and the AIX performance recorder (`topasrec`, started once at boot from the
+`xmdaily` inittab entry) stops writing to `/var/perf/daily` and does **not** restart until the
+next reboot. Check with `ps -ef | grep [t]opasrec` and `ls -lt /var/perf/daily | head -3`. After
+`/var` is fixed, L2 restarts it with the exact command line from `lsitab xmdaily`. Until then
+aix-mcp's performance history has a gap.
+
 JFS2 notes (SG24-8453): JFS2 can grow online but not shrink; on a mirrored VG a new or extended
 LV is not automatically mirrored, so check `lsvg -l` (PPs = 2 × LPs) after any L2 extension.
 Reclaiming thin-provisioned space and defragmenting are changes.
