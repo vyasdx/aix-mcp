@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Six read-only skills (Agent Skills format) in `skills/`: `aix-health-check`,
+  `aix-storage-paths`, `aix-vios-check`, `aix-performance-triage`, `aix-filesystem-full`,
+  `aix-cluster-checks`. They guide L1/L2 checks and correlation with the aix-mcp tools, give
+  exact read-only commands for areas the tools do not collect yet, and list what must never
+  be run. `tests/test_skills.py` checks front matter, tool and finding names, and links.
+
 ## 0.2.0 (first PyPI release)
 
 - On PyPI as `aix-mcp`, and listed in the official MCP registry as `io.github.vyasdx/aix-mcp`.

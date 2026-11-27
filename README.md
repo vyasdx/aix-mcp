@@ -174,6 +174,14 @@ server, so a question across 1000 LPARs returns only the rows that matter. This 
 tool-calling clients and with code-execution ("code mode") clients. See
 [docs/code-mode.md](docs/code-mode.md).
 
+## Skills: an AIX admin's playbook, not just tools
+
+The tools say *what* can be asked. Six read-only [skills](skills/) say *how an experienced AIX
+admin works*: what to check first, how to read the answer, how serious it is, who owns it, and
+what must never be run. They cover health checks, storage paths, VIOS and NPIV, performance,
+full filesystems, and PowerHA / Storage Scale / NIM / WPAR status checks. They are written from
+IBM Redbooks (paraphrased) and field practice. See [skills/README.md](skills/README.md) to try them.
+
 ## Performance history you already have
 
 On a default install, AIX keeps a **5-minute performance recording** in `/var/perf/daily`,

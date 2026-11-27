@@ -44,7 +44,7 @@ packages = ["src/aix_mcp"]
 "collectors/install_dispatch.ksh" = "aix_mcp/collectors/install_dispatch.ksh"
 
 [tool.hatch.build.targets.sdist]
-include = ["src", "collectors", "tests", "docs", "README.md", "LICENSE", "NOTICE", "SECURITY.md", "CHANGELOG.md", "server.json"]
+include = ["src", "collectors", "tests", "docs", "README.md", "LICENSE", "NOTICE", "SECURITY.md", "CHANGELOG.md", "server.json", "skills"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
