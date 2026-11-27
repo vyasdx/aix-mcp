@@ -52,6 +52,13 @@ the client may fail to configure devices or fail to boot (SG24-8062).
 | `Rsv` | Unexpected reservation conflict: another host may be using the disk | high (data risk) |
 | `Clo` | Closed | medium if only some paths of an open disk |
 
+## Example: a healthy NPIV disk on AIX 7.3 TL4 (lab)
+
+`algorithm shortest_queue`, `hcheck_interval 60`, `hcheck_mode nonactive`, `hcheck_cmd test_unit_rdy`,
+`reserve_policy no_reserve`, `queue_depth 32`, `rw_timeout 30`, `timeout_policy fail_path`; on the
+fscsi: `fc_err_recov fast_fail`, `dyntrk yes`, `attach switch`. Eight paths over four virtual FC
+adapters, half `Sel,Opt` and half `Non` (preferred and non-preferred storage nodes).
+
 ## Path counts
 
 About 4 to 8 paths per LUN. More paths make error recovery, boot and device configuration

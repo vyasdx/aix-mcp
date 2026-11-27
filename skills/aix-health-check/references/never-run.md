@@ -10,10 +10,12 @@ scope**, even if it looks harmless.
 change flag, `cache_mgt`, `mkiscsi`.
 
 Looks read-only but is not:
-- `lsmpio -o` sends I/O down every path, including failed ones. It is a probe, not a read.
+- `lsmpio -o` sends I/O down every path, including failed ones; it can take minutes. A probe, not a read.
+- `lsmpio -z` resets all path statistics (with `-a`, the adapter error and fpin counts).
+- `lsmpio -q` sends SCSI queries to the device: L2 only.
 - `bootlist -m normal <disks>` (with a device list) **sets** the boot list. Only `bootlist -m normal -o` reads it.
 - `seastat -c` clears per-client SEA statistics.
-- `fuser -k` kills processes. Only `fuser -c` reads.
+- `fuser -k` and `fuser -K` kill or signal processes. `fuser -c`, `-d`, `-u`, `-V` only read.
 - `smtctl` with `-m`, `-t` or `-w` changes SMT. Only `smtctl` with no flags reads.
 
 ## LVM, filesystems, boot, dump

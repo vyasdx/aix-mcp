@@ -43,7 +43,8 @@ Run on the alerted filesystem only, never on `/` as a whole:
 | `du -sg <fs>/* 2>/dev/null \| sort -rn \| head -20` | Which top-level directory grew. Then drill down one level at a time |
 | `find <fs> -xdev -size +500M -mtime -1 2>/dev/null` | Large files written in the last day (`-xdev` stays on this filesystem) |
 | `fuser -c <fs>` | Processes using the filesystem (read-only form) |
-| `lsof +L1` | Deleted files still held open, **only if lsof is installed** (not in base AIX) |
+| `fuser -dV <fs>` | Open files that were **deleted**, with inode and size: the "df full, du not" cause. Base AIX, no lsof needed |
+| `lsof +L1` | Same idea, only if lsof is installed (it is not in base AIX) |
 | `errpt \| head -50` | JFS2 or disk errors around the alert |
 
 `du` and `find` read every file under the path: on very large trees they add load. Scope them

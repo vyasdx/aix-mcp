@@ -10,20 +10,22 @@ VIOS as `padmin`. Ask for the output and read it with [attributes.md](attributes
 | `lspath` | Every line should be `Enabled hdiskN <parent>` |
 | `lspath \| grep -v Enabled` | Only the problem paths |
 | `lspath -l hdiskN` | Paths of one disk |
-| `lspath -AHE -l hdiskN -p vscsiN` | Path `priority` (1 is highest) |
-| `lsmpio -l hdiskN` | `status` and `path_status` per path (AIX PCM) |
-| `lsmpio -are` | Per FC adapter: WWPN, `Link State`, remote ports, connection errors (10 min / 60 min / 24 h) |
-| `lsmpio -Sd` | Per-path counters: timeouts, transport errors, path failure count *(verify flags on your level)* |
+| `lspath -AHE -l hdiskN -p <parent> -w <connection>` | Path `priority` (1 is highest). `-w` is needed when several paths share one parent (normal with NPIV); get it from `lspath -l hdiskN -F parent:connection` |
+| `lsmpio -l hdiskN` | `status` and `path_status` per path (AIX PCM). Codes combine, e.g. `Sel,Opt` |
+| `lsmpio -are` | Per FC adapter: WWPN, `Link State`, remote ports, connection errors (10 min / 60 min / 24 h). Virtual FC may say "PCM does not report connection errors" |
+| `lsmpio -af` | Fabric congestion (fpin) counts per adapter *(verify: from the man page, not yet run)* |
+| `lsmpio -Sd -l hdiskN` | Per-path counters: timeouts, transport errors, path failure count (`-d` only works with `-S`) |
 | `lsattr -El hdiskN` | `hcheck_interval`, `hcheck_mode`, `algorithm`, `reserve_policy`, `queue_depth`, `max_transfer` |
 | `lsattr -El fscsiN` | `fc_err_recov`, `dyntrk`, `attach` |
 | `lsattr -El fcsN` | `num_cmd_elems`, `max_xfer_size` |
 | `lsattr -El vscsiN` | `vscsi_err_recov`, `vscsi_path_to` |
 | `lscfg -vl vscsiN` / `lscfg -vl fcsN` | Location code (slot `C<n>`), WWPN |
-| `fcstat fcsN` | Resource counters and link counters (see below) *(verify on an AIX LPAR; documented on VIOS)* |
+| `fcstat fcsN` | Resource counters and link counters (see below). Works on AIX LPARs too |
 | `lsdev -Cc disk`, `lsdev -Cc adapter` | Available vs Defined |
 | `errpt \| head -50` | Path and disk errors around the time of the alert |
 
-**Do not use** `lsmpio -o`: it sends I/O down every path, including failed ones.
+**Do not use** `lsmpio -o` (sends I/O down every path, including failed ones; can take minutes),
+`lsmpio -z` (resets statistics) or `lsmpio -q` (SCSI queries to the device; L2 only).
 
 ## fcstat counters
 
@@ -31,7 +33,8 @@ VIOS as `padmin`. Ask for the output and read it with [attributes.md](attributes
   healthy. Non-zero means I/O queued at the adapter for lack of resources (points at
   `max_xfer_size` or `num_cmd_elems`). Counters run since boot: compare two samples.
 - `Link Failure Count`, `Loss of Sync Count`, `Invalid CRC Count` growing between samples
-  suggest cabling, optics or switch-port trouble *(interpretation is field practice)*.
+  suggest cabling, optics or switch-port trouble *(interpretation is field practice)*. On a
+  **virtual** FC client adapter these show `-1` (not reported): read them on the VIOS instead.
 - Never use an option that resets statistics.
 
 ## Third-party multipath (only if installed)

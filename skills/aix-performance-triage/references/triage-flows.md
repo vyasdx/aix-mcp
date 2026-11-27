@@ -37,7 +37,7 @@ them to the estate.
      single VP, at the profile maximum, or at the pool maximum.
 5. Extra signals: `lbusy` near 100 → more VPs could help; one logical CPU at 100% with low
    `lbusy` → single-threaded workload, more cores will not help; `%nsp` below 100 → cores running
-   below nominal frequency.
+   below nominal frequency (above 100 is normal on boost-capable systems).
 6. `%sys` dominant with no heavy process → kernel or driver suspicion, L2/L3. (Trace tools such
    as perfpmr are heavy and L3 only.)
 

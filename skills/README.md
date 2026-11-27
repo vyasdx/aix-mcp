@@ -62,12 +62,20 @@ upload it under Settings → Capabilities → Skills, with aix-mcp connected as 
 commands, quotes the evidence age, ranks by severity, names an owner, and never offers a
 command that changes the system. Please report anything else as an issue.
 
-## To verify in a lab (help wanted)
+## Lab verification
 
-These items are marked *(verify)* in the skills and need confirmation on a real system:
-- `errpt -d`, `-N` filters; `sysdumpdev -l`/`-e` output; how `lsvg` shows quorum off;
-  `lppchk -v` output when healthy; time-sync commands per AIX level.
-- `fcstat` on an AIX LPAR (documented on VIOS); `lsmpio -Sd` flags; `chkdev` flags on VIOS.
+**Checked on AIX 7.3 TL4 (7300-04-02, PowerVS, NPIV storage) in November 2026:** `errpt -d`/`-N`
+and the detail fields; `sysdumpdev -l`/`-e`/`-L` output; `lsvg` quorum display (enabled form);
+`bootlist -m normal -o` (one line per path); `lppchk -v` (silent, rc 0 when healthy); `instfix -i`,
+`emgr -l`; time sync on 7.3 TL4 (`xntpd`, no `chronyd`); `lspath` (`-w` needed for `-AHE` with
+NPIV), `lsmpio -l`/`-are`, the `-S`/`-d`/`-z`/`-o`/`-q` flag meanings; `fcstat` on a virtual FC
+client (link counters `-1`); `fuser -d` for deleted-open files (no `lsof` in base AIX);
+`lparstat -i`/`-m`/`-c`, `vmstat -v`, `svmon -G`, `lsps -a`/`-s`, `mpstat -s`, `iostat -D`,
+`smtctl`; WPAR flags and state letters from `man lswpar`.
+
+**Still marked *(verify)*, help wanted from anyone with these systems:**
+- VIOS: `chkdev` flags, `lsmap`, `lsnports`, `viostat`, SEA `entstat` output (no VIOS access on PowerVS).
 - PowerHA 7.3 differences from 7.2.7 (state names, `clRGinfo` flags, `clmgr query` classes).
-- `mmhealth` availability on AIX nodes.
-- All WPAR commands and state letters.
+- Storage Scale on AIX, including whether `mmhealth` runs there.
+- NIM master output (`lsnim` states on 7.3), real WPAR output layout, how `lsvg` shows quorum *off*,
+  `lsmpio -af`.
